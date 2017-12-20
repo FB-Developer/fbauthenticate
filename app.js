@@ -10,6 +10,7 @@ const corst=require('cors');
 var jwt =require('jsonwebtoken');
 var index = require('./routes/index');
 var users = require('./routes/users');
+var results = require('./routes/results');
 var config = require('./config');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
@@ -91,6 +92,7 @@ app.use((request,response,next)=>{
 
 //make use of the routes
 app.use('/users', users);
+app.use('/fbresult', results);
 
 //if any route not found
 app.use(function(req, res, next) {
