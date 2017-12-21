@@ -48,46 +48,52 @@ router.get('/overall', function(request, response, next) {
 
 
 router.get('/',(request,response,next)=>{
+
     fbresult.find({academicyear: request.query.academicyear,fdept:request.query.dept,fname:request.query.fname},
   (error,result)=>{
+    console.log(result);
     if(error)
       response.json({status:false,mesg:error.errmsg});
     else
     {
-      if(result.length==0)
-        response.json({status:false,mesg:"Data !Found"});
+      var fbValueList = 0;
+      if(result.length==0){}
+        fbValueList = "Data !Found";
       //console.log(result[0].fbValueList);
       // console.log(JSON.stringify(result[0].fbValueList.find({"fbValueList.rating":"Excellent"}).count()).count(), null, 2));
       result.map((tempresult)=>{
-        console.log(tempresult);
-        // var excellentCount=0;
-        // var verygoodCount=0;
-        // var goodCount=0;
-        // var fairCount=0;
-        // var totalCount=0;
-        // var scoreTotal=0;
-        // tempresult.fbValueList.map((fbvalue)=>{
-        //     if(fbvalue.rating=='Excellent')
-        //       excellentCount++;
-        //     else if(fbvalue.rating=='Very Good')
-        //         verygoodCount++;
-        //     else if(fbvalue.rating=='Good')
-        //           goodCount++;
-        //     else if(fbvalue.rating=='Fair')
-        //             fairCount++;
-        //     totalCount++;
-        //     scoreTotal+=fbvalue.score;
-        //   });
-        //   var resultResponse="fbResult:{'Total':"+totalCount+
-        //           ",'Excellent':"+excellentCount+
-        //           ",'Very Good':"+verygoodCount+
-        //           ",'Good':"+goodCount+
-        //           ",'Fair':"+fairCount+
-        //           ",'Avgscore':"+(scoreTotal/totalCount)+
-        //         "}";
-        //   response.json({status:true,mesg:resultResponse});
+        //console.log(tempresult);
+        var excellentCount=0;
+        var verygoodCount=0;
+        var goodCount=0;
+        var fairCount=0;
+        var totalCount=0;
+        var scoreTotal=0;
+        tempresult.fbValueList.map((fbvalue)=>{
+            if(fbvalue.rating=='Excellent')
+              excellentCount++;
+            else if(fbvalue.rating=='Very Good')
+                verygoodCount++;
+            else if(fbvalue.rating=='Good')
+                  goodCount++;
+            else if(fbvalue.rating=='Fair')
+                    fairCount++;
+            totalCount++;
+            scoreTotal+=fbvalue.score;
+          });
+          fbValueList="'academicyear':" + request.query.academicyear +
+                  ",'dept':" + request.query.dept +
+                  ",'fname':" + request.query.fname +
+                  ",'fbResult':{'Total':"+ totalCount +
+                  ",'Excellent':"+ excellentCount +
+                  ",'Very Good':"+ verygoodCount +
+                  ",'Good':"+ goodCount +
+                  ",'Fair':"+ fairCount +
+                  ",'Avgscore':" + (scoreTotal/totalCount) +
+                "}";
+          //response.json({status:true,mesg:fbValueList});
       });
-      response.json({status:true,mesg:result});
+      response.json({status:true,mesg:fbValueList});
     }
   });
 });

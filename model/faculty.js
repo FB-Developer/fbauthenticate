@@ -5,7 +5,7 @@ const fbSchema = new Schema({
       academicyear:String,
       dept:String,
       sem:String,
-      degrre:String,
+      degree:String,
       class:String,
       sectionList:[
         {
@@ -13,7 +13,7 @@ const fbSchema = new Schema({
             batch:String,
             subjectList:[{
                 subname:String,
-                faculty:[{
+                facultyList:[{
                   fname:String,
                   fdept:String
                 }]
