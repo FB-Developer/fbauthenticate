@@ -11,6 +11,7 @@ const subjectdetailModel=require('../model/subjectdetail');
 
 /*
 *Function to add fname and fdept pair to the collection
+* input @params: dept & facultyList[]
 */
 router.post('/addfacultylist',(request,response,next)=>{
   console.log(request.body);
@@ -25,12 +26,14 @@ router.post('/addfacultylist',(request,response,next)=>{
 });
 
 /*
-* Function to add a single faculty entry on the department faculty List
+* Function to update department faculty list with a single or multiple  faculty entry
+* input @params : dept & facultyList[]
+* Function will ommit the duplicate names in the database
 */
 router.post('/updatefacultylist', (request, response,next)=>{
-    //console.log(request.body.facultyList);
+    console.log(request.body.facultylist);
     facultydetailModel.update({dept: request.body.dept},
-    { $addToSet: { facultyList: { $each: request.body.facultyList}} }, (error, result)=>{
+    { $addToSet: { facultylist: { $each: request.body.facultylist}} }, (error, result)=>{
 
       if (result == 0)
         response.send(error)
@@ -44,10 +47,11 @@ router.post('/updatefacultylist', (request, response,next)=>{
 
 /*
 * Function to get fname based on the passed fdept
+* input @params: dept
 */
 router.get('/getfacultylist', (request, response,next)=>{
 
-  console.log(request.query.fdept);
+  console.log(request.query.dept);
 
   facultydetailModel.find({dept:request.query.dept}, (error,result)=>{
     console.log(result);
@@ -58,10 +62,10 @@ router.get('/getfacultylist', (request, response,next)=>{
         response.json({status:false,mesg:error.errmsg});
       else
       {
-        if((result[0].facultyList).length == 0)
+        if((result[0].facultylist).length == 0)
           response.json({status:false,mesg:"Specified Department Faculty List Not Available in Database."});
         else
-          response.json({status:true,fnames:result[0].facultyList});
+          response.json({status:true,facultylist:result[0].facultylist});
       }
     }
   });
@@ -91,18 +95,18 @@ router.get('/getfacultylist', (request, response,next)=>{
 router.post('/addsubjectlist',(request,response,next)=>{
   console.log(request.body);
   subject1=new subjectdetailModel(request.body);
-   subject1.save((error,subjectlist)=>{
+   subject1.save((error,result)=>{
     if(error){
-      response.send(error);
+      response.send({status:false,mesg:"Subject List Entry is exist already. Try to Update Subject List.",error:error});
     }else{
-    response.json({status:true,mesg:"Subject List Added.",subjectlist:subjectlist});
+      response.json({status:true,mesg:"Subject List Added.",subjectlist:result.subjectlist});
   }
   });
 });
 
 /*
 * Function to get Subject List from the Database
-* input @params: dept, degree, userModel
+* input @params: dept, degree, sem
 * output @params: subjectlist
 */
 router.get('/getsubjectlist', (request, response,next)=>{
@@ -120,7 +124,7 @@ router.get('/getsubjectlist', (request, response,next)=>{
         if((result[0].subjectlist).length == 0)
           response.json({status:false,mesg:"Specified Semester Subject List is Empty in Database."});
         else
-          response.json({status:true,fnames:result[0].subjectlist});
+          response.json({status:true,subjectlist:result[0].subjectlist});
       }
     }
   });
@@ -131,7 +135,7 @@ router.get('/getsubjectlist', (request, response,next)=>{
 * input @params: dept, degree, sem, Subjectlist
 */
 router.post('/updatesubjectlist', (request, response,next)=>{
-    //console.log(request.body.facultyList);
+    // console.log(request.body.facultyList);
     subjectdetailModel.update({dept:request.body.dept,degree:request.body.degree,sem:request.body.sem},
     { $addToSet: { subjectlist: { $each: request.body.subjectlist}} }, (error, result)=>{
 
@@ -146,13 +150,5 @@ router.post('/updatesubjectlist', (request, response,next)=>{
     }
   )
 });
-
-
-
-
-
-
-
-
 
 module.exports = router;

@@ -117,44 +117,58 @@ userModel.find({'studentdetail.academicyear':request.body.academicyear})
 //-------------------------
 
 router.get('/getcompletedusers', (request, response, next)=>{
-  console.log(request.body);
-  console.log(request.query.dept);
-  console.log(request.query.academicyear);
-  console.log(request.query.sem);
-  console.log(request.query.class);
-  console.log(request.query.completed);
 
-  var query = {};
-
-  if (request.body.academicyear) query.academicyear = request.body.academicyear;
-  if (request.body.dept) query.academicyear = request.body.dept;
-  if (request.body.sem) query.academicyear = request.body.sem;
-  if (request.body.class) query.academicyear = request.body.class;
-  if (request.body.completed) query.academicyear = request.body.completed;
-
-    userModel.find(query, (error, document)=>{
-
-      if (error) console.log(error);
-      else return response.json(document);
-    });
-
+  /*
+  *   THis section of code is not working properely - See below with details
+  */
   // console.log(request.body);
-  // userModel.find({'studentdetail.academicyear':request.body.academicyear})
-  // .where('studentdetail.dept').equals(request.body.dept)
-  // .where('studentdetail.sem').equals(request.body.sem)
-  // .where('studentdetail.class').equals(request.body.class)
-  // .where({'studentdetail.completed': {$eq :request.body.completed}})
-  // .exec((error, document)=>{
-  //   console.log(document.length);
-  //   if(error){
-  //     console.log('Error:' + error);
-  //     response.json({status:false,mesg: 'data not exist'});
-  //   }
-  //   else if(document.length == 0)
-  //     response.json({status:false,mesg:"!found"});
-  //   else
-  //     response.json({status:true, mesg: document});
-  // });
+  // console.log(request.query.dept);
+  // console.log(request.query.academicyear);
+  // console.log(request.query.sem);
+  // console.log(request.query.class);
+  // console.log(request.query.completed);
+  //
+  // var query = {};
+  //
+  // if (request.query.academicyear) query.academicyear = request.query.academicyear;
+  // if (request.query.dept) query.dept = request.query.dept;
+  // if (request.query.sem) query.sem = request.query.sem;
+  // if (request.query.class) query.class = request.query.class;
+  // if (request.query.completed) query.completed = request.query.completed;
+  //
+  // console.log(query);
+  //
+  //   userModel.find(query, (error, document)=>{
+  //
+  //     if (error) console.log(error);
+  //     else return response.json(document);
+  //   });
+
+
+/*
+ *  This Section of Code is working properely
+ *  input @params: academicyear, dept, sem, class, completed
+ *  output : Will response with array of non-completed feedback list of users with whole node details
+ *      as specified in the user Model (see /model/user.js)
+ */
+
+  console.log(request.body);
+  userModel.find({'studentdetail.academicyear':request.query.academicyear})
+  .where('studentdetail.dept').equals(request.query.dept)
+  .where('studentdetail.sem').equals(request.query.sem)
+  .where('studentdetail.class').equals(request.query.class)
+  .where({'studentdetail.completed': {$eq :request.query.completed}})
+  .exec((error, document)=>{
+    console.log(document.length);
+    if(error){
+      console.log('Error:' + error);
+      response.json({status:false,mesg: 'data not exist'});
+    }
+    else if(document.length == 0)
+      response.json({status:false,mesg:"!found"});
+    else
+      response.json({status:true, mesg: document});
+  });
 });
 
 
@@ -188,10 +202,10 @@ router.post('/addfbresult', (request, response, next)=>{
     });
 
 
-
-
-//-------------------------
-//to add the academicyear node details
+/*
+*   To add the academicyear node details
+*   See model (/model/faculty.js) for details
+*/
 router.post('/addfbdetail',(request,response,next)=>{
     fbdt=new fbdetail(request.body);
     fbdt.save((error,result)=>{
@@ -204,7 +218,10 @@ router.post('/addfbdetail',(request,response,next)=>{
 });
 
 
-//method to add the user (Student/Faculty)
+/*
+*  Function to add the user (Student/Faculty)
+*  See model (/model/user.js) for details
+*/
 router.post('/adduser',(request,response,next)=>{
   console.log(request.body);
   user1=new userModel(request.body);
@@ -216,7 +233,8 @@ router.post('/adduser',(request,response,next)=>{
 });
 
 /*
-*function to register user fddeback and ser COMPLETED = true
+*   Function to register user fddeback and ser COMPLETED = true
+*   input @params: userId
 */
 router.post('/setcompleted', (request, response, next)=>{
     userModel.find(request.body, (error, result)=>{
@@ -228,7 +246,7 @@ router.post('/setcompleted', (request, response, next)=>{
                 response.json({status:false,mesg:error.errmsg});
               else{
                 console.log(result);
-                response.json({status:true,mesg:result});
+                response.json({status:true,mesg:"Feedback Registered"});
               }
           });
         }else{
@@ -238,7 +256,32 @@ router.post('/setcompleted', (request, response, next)=>{
 });
 
 /*
-*function to get completed status of user feedback
+* Function to De-Register user fddeback (set COMPLETED = false)
+* input @params: userId
+*/
+router.post('/setcompletedfalse', (request, response, next)=>{
+    userModel.find(request.body, (error, result)=>{
+    //  console.log(result, error);
+      if(result.length != 0){
+
+        userModel.update(request.body,{ $set: { "studentdetail.completed" : false }}, (error, result)=>{
+              if (error)
+                response.json({status:false,mesg:error.errmsg});
+              else{
+                console.log(result);
+                response.json({status:true,mesg:"Feedback De-registered"});
+              }
+          });
+        }else{
+                response.json({status:false,mesg:"!Found"});
+      }
+    });
+});
+
+
+/*
+*  Function to completed status of user
+*  To check weather feedback is submitted or not
 */
 router.get('/getCompletedStatus', (request, response, next)=>{
   //console.log(request.query);
@@ -261,7 +304,5 @@ router.get('/getCompletedStatus', (request, response, next)=>{
     }
   });
 });
-
-
 
 module.exports = router;

@@ -3,6 +3,6 @@ const Schema = mongoose.Schema;
 
 const facultydetailSchema = new Schema({
       dept:{type:String, unique:true},
-      facultyList: { type:Array}
+      facultylist: { type:Array}
   });
 module.exports = mongoose.model('facultydetail',facultydetailSchema);

@@ -8,12 +8,9 @@ const userModel=require('../model/user');
 const fbdetail=require('../model/faculty');
 const fbresult=require('../model/fbresultdetail');
 
-
-
-
 /*
 * Function to get overall results
-* @params: academic year & fdept
+* @params: academicyear & dept
 */
 router.get('/overall', function(request, response, next) {
  //  fbresult.find((error,resp)=>{
@@ -40,15 +37,19 @@ router.get('/overall', function(request, response, next) {
           },
         }
       ],(error,result)=>{
-        if(error)
-          response.json(error);
-        response.json(result);
+        if(error){
+          response.json(error);}else{
+        response.json(result);}
       });
 });
 
-
+/*
+* Function to get Result based on passed parameters
+* input @params: avademicyear, dept, fname
+* output : List of response fbResult Node
+*/
 router.get('/',(request,response,next)=>{
-
+    console.log(request);
     fbresult.find({academicyear: request.query.academicyear,fdept:request.query.dept,fname:request.query.fname},
   (error,result)=>{
     console.log(result);
@@ -99,17 +100,22 @@ router.get('/',(request,response,next)=>{
 });
 
 
+/*
+* Function to get fbResult
+*/
 router.post('/getfbresult', (request, response, next)=>{
+  console.log(request.body);
 fbresult.find(request.body,(error,result)=>
   {
-      if(error)
-        response.json({status:false,mesg:error.errmsg});
+      if(error){
+        response.json({status:false,mesg:error.errmsg}); }
       else
       {
-        if(result.length==0)
-          response.json({status:false,mesg:"Data !Found"});
-        //console.log(result[0].fbValueList);
-        // console.log(JSON.stringify(result[0].fbValueList.find({"fbValueList.rating":"Excellent"}).count()).count(), null, 2));
+        if(result.length==0){
+          response.json({status:false,mesg:"Data !Found"});}
+        else{
+
+        console.log(result[0].fbValueList);
         result.map((tempresult)=>{
           var excellentCount=0;
           var verygoodCount=0;
@@ -119,7 +125,7 @@ fbresult.find(request.body,(error,result)=>
           var scoreTotal=0;
           tempresult.fbValueList.map((fbvalue)=>{
               if(fbvalue.rating=='Excellent')
-                excellentCount++;
+                  excellentCount++;
               else if(fbvalue.rating=='Very Good')
                   verygoodCount++;
               else if(fbvalue.rating=='Good')
@@ -138,7 +144,7 @@ fbresult.find(request.body,(error,result)=>
                   "}";
             response.json({status:true,mesg:resultResponse});
         });
-      }
+      } }
   });
 });
 module.exports = router;
