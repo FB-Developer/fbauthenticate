@@ -51,6 +51,46 @@ router.get('/', function(req, res, next) {
 // });
 
 
+router.get('/fbformlistbydept', function(request, response, next) {
+    const cursor=fbdetail.find({academicyear:request.query.academicyear})
+      .where('dept').equals(request.query.dept)
+      .exec((error,document)=>{
+          if(error || document == null){
+            // console.log('Error:' + error);
+            response.json({status:false,mesg: 'data not exist'});
+          } else
+          {
+
+            temp=[];
+            for (var indx = 0; indx < document.length; indx++) {
+              temp.push({"academicyear":document[indx].academicyear,
+              "dept":document[indx].dept,
+              "sem":document[indx].sem,
+              "class":document[indx].class,
+              "degree":document[indx].degree
+              });
+          }
+          response.json(temp);
+          }
+        });
+});
+
+router.get('/fbformdetail', function(request, response, next) {
+    const cursor=fbdetail.findOne({academicyear:request.query.academicyear})
+      .where('dept').equals(request.query.dept)
+      .where('sem').equals(request.query.sem)
+      .where('class').equals(request.query.class)
+      .where('degree').equals(request.query.degree)
+      .exec((error,document)=>{
+          if(error || document == null){
+            response.json({status:false,mesg: 'data not exist'});
+          } else
+          {
+              response.json({status:true, mesg: document});
+          }
+        });
+});
+
 router.post('/fbdetailv1', function(request, response, next) {
     const cursor=fbdetail.findOne({academicyear:request.body.academicyear})
       .where('dept').equals(request.body.dept)
