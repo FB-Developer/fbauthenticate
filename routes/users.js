@@ -75,6 +75,28 @@ router.get('/fbformlistbydept', function(request, response, next) {
         });
 });
 
+//Delete whole FB details node from the database
+router.delete('/deletefbdetail', function(request, response, next){
+
+    console.log(request.query);
+    
+    fbdetail.remove({academicyear:request.query.academicyear, degree:request.query.degree,
+                    dept:request.query.dept, sem:request.query.sem, class:request.query.class},         function(err, result){
+        
+        console.log("Callback: " + result + "\t N:" + JSON.parse(result).n);
+        
+        if(err){
+            response.json({ status:false, mesg: 'Data Not Removed. Refresh to try again.'});
+            
+        }
+        else{
+           response.json({ status:true, mesg: result});
+        }
+    
+    });
+    
+});
+
 router.get('/fbformdetail', function(request, response, next) {
     const cursor=fbdetail.findOne({academicyear:request.query.academicyear})
       .where('dept').equals(request.query.dept)
@@ -134,13 +156,13 @@ router.post('/fbdetailv1', function(request, response, next) {
         });
 });
 
-router.post('/getallusers', (request, response, next)=>{
-  console.log(request.body);
-userModel.find({'studentdetail.academicyear':request.body.academicyear})
-.where('studentdetail.dept').equals(request.body.dept)
-.where('studentdetail.sem').equals(request.body.sem)
-.where('studentdetail.class').equals(request.body.class)
-.where({'studentdetail.completed': {$eq :request.body.completed}})
+router.get('/getallusers', (request, response, next)=>{
+  //console.log(request.body);
+userModel.find({'studentdetail.academicyear':request.query.academicyear})
+.where('studentdetail.dept').equals(request.query.dept)
+.where('studentdetail.sem').equals(request.query.sem)
+.where('studentdetail.class').equals(request.query.class)
+.where('studentdetail.degree').equals(request.query.degree)
 .exec((error, document)=>{
     console.log(document.length);
     if(error){
@@ -148,7 +170,7 @@ userModel.find({'studentdetail.academicyear':request.body.academicyear})
       response.json({status:false,mesg: 'data not exist'});
     }
     else if(document.length == 0)
-      response.json({status:false,mesg:"!found"});
+      response.json({status:false,mesg:"User List Empty"});
     else
       response.json({status:true, mesg: document});
   });
@@ -209,6 +231,19 @@ router.get('/getcompletedusers', (request, response, next)=>{
     else
       response.json({status:true, mesg: document});
   });
+});
+
+
+router.delete('/deleteusers', (request, response, next)=>{
+
+        console.log("****",request.query.idList);
+       userModel.deleteMany({ userId: { $in: JSON.parse(request.query.idList)}}, function(error,result) {
+           if(error)
+           {
+               response.send({status:false,mesg:error.errmsg});
+           }
+            response.send({status:true,mesg:result});
+        });
 });
 
 

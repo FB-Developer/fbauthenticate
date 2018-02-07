@@ -12,6 +12,7 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var results = require('./routes/results');
 var details = require('./routes/details');
+var upload = require('./routes/upload');
 var config = require('./config');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
@@ -25,38 +26,6 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     console.log("Connected");
-});
-
-//---------------------------------------Code for File Upload Start
-//get multer
-var multer = require('multer');
-
-//define storage folder
-var storage = multer.diskStorage({
-  destination: function(request, file, callback){
-    callback(null, './fileUploads');
-  }, //define file name
-  filename: function(request, file, callback){
-    callback(null, file.originalname);
-  }
-});
-
-var upload = multer({storage: storage}).single('myfile');
-
-//redirect to File Upload Page
-app.get('/file', (request, response,next)=>{
-  response.sendFile("E:/fbauthenticate/fileupload.html");
-});
-
-//file upload function
-app.post('/uploadjavatpoint',function(req,res){
-    console.dir(req.files);
-    upload(req,res,function(err) {
-        if(err) {
-            return res.end("Error uploading file.");
-        }
-        res.end("File is uploaded successfully!");
-    });
 });
 
 // uncomment after placing your favicon in /public
@@ -90,19 +59,19 @@ app.use((request,response,next)=>{
   }
 });
 */
-
 //make use of the routes
 app.use('/users', users);
 app.use('/fbresult', results);
 app.use('/details', details);
-
+app.use('/upload',upload);
 //if any route not found
+//
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
-
+//
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
