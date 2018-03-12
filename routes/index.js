@@ -6,7 +6,7 @@ const jwt= require('jsonwebtoken');
 const config = require('../config');
 const userModel=require('../model/user');
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express Test' });
 });
 
 router.post('/login',(request,response,next)=>{

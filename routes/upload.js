@@ -29,7 +29,7 @@ var model=null;
 
 var storage	=	multer.diskStorage({
   destination: function (req, file, callback) {
-    callback(null, './uploaded file');
+    callback(null, './UploadedFile');
   },
   filename: function (req, file, callback) {
 	callback(null, xlsxFile);
@@ -40,12 +40,15 @@ var upload = multer({ storage : storage}).single('file');
 router.post('/',function(req,res){
 	upload(req,res,function(err) {
 		if(err) {
+          console.log('----',err);
         }
         else{
-        mongoxlsx.xlsx2MongoData('./Uploaded File/'+xlsxFile, model, function(err, data) {
+
+        mongoxlsx.xlsx2MongoData('./UploadedFile/'+xlsxFile, model, function(err, data) {
             let errorFlag=false;
             let errorMesg;
           for (dt of data) {
+            console.log('----',dt);
                 var user=new userModel();
               user.userId=dt.userId;
               user.userName=dt.userName;
@@ -62,11 +65,11 @@ router.post('/',function(req,res){
               };
               user.save((error)=>{
                         if(error)
-                        {                            
+                        {
                             errorFlag=true;
                             errorMesg=error.errmesg;
-                        }                  
-                        else{                            
+                        }
+                        else{
                         }
                     });
           }
@@ -78,16 +81,8 @@ router.post('/',function(req,res){
            {
                 return res.json({'success':false,'mesg':errorMesg});
            }
-          });		 
+          });
         }
 	});
 });
 module.exports = router;
-
-
-
-
-
-
-
-

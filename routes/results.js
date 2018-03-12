@@ -52,7 +52,6 @@ router.get('/',(request,response,next)=>{
     console.log(request);
     fbresult.find({academicyear: request.query.academicyear,fdept:request.query.dept,fname:request.query.fname},
   (error,result)=>{
-    console.log(result);
     if(error)
       response.json({status:false,mesg:error.errmsg});
     else
@@ -62,8 +61,9 @@ router.get('/',(request,response,next)=>{
         fbValueList = "Data !Found";
       //console.log(result[0].fbValueList);
       // console.log(JSON.stringify(result[0].fbValueList.find({"fbValueList.rating":"Excellent"}).count()).count(), null, 2));
+      resultList=new Array();
       result.map((tempresult)=>{
-        //console.log(tempresult);
+        console.log('----',tempresult);
         var excellentCount=0;
         var verygoodCount=0;
         var goodCount=0;
@@ -82,19 +82,39 @@ router.get('/',(request,response,next)=>{
             totalCount++;
             scoreTotal+=fbvalue.score;
           });
-          fbValueList="'academicyear':" + request.query.academicyear +
-                  ",'dept':" + request.query.dept +
-                  ",'fname':" + request.query.fname +
-                  ",'fbResult':{'Total':"+ totalCount +
-                  ",'Excellent':"+ excellentCount +
-                  ",'Very Good':"+ verygoodCount +
-                  ",'Good':"+ goodCount +
-                  ",'Fair':"+ fairCount +
-                  ",'Avgscore':" + (scoreTotal/totalCount) +
-                "}";
-          //response.json({status:true,mesg:fbValueList});
+          // fbValueList="'academicyear':" + request.query.academicyear +
+          //         ",'dept':" + request.query.dept +
+          //         ",'fname':" + request.query.fname +
+          //         ",'fbResult':{'Total':"+ totalCount +
+          //         ",'Excellent':"+ excellentCount +
+          //         ",'Very Good':"+ verygoodCount +
+          //         ",'Good':"+ goodCount +
+          //         ",'Fair':"+ fairCount +
+          //         ",'Avgscore':" + (scoreTotal/totalCount) +
+          //       "}";
+
+                resultList.push(
+                    {
+                        degree:tempresult.degree,
+                        dept:tempresult.dept,
+                        class:tempresult.class,
+                        sem:tempresult.sem,
+                        section:tempresult.section,
+                        subname:tempresult.subname,
+                        batch:tempresult.batch,
+                        fbResult:{
+                            total:totalCount,
+                            excellent:excellentCount,
+                            verygood:verygoodCount,
+                            good:goodCount,
+                            fair:fairCount,
+                            avgscore:(scoreTotal/totalCount)
+                        }
+                    });
+                //
+          // response.json({status:true,mesg:fbValueList});
       });
-      response.json({status:true,mesg:fbValueList});
+      response.json({status:true,mesg:resultList});
     }
   });
 });

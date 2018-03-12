@@ -79,22 +79,22 @@ router.get('/fbformlistbydept', function(request, response, next) {
 router.delete('/deletefbdetail', function(request, response, next){
 
     console.log(request.query);
-    
+
     fbdetail.remove({academicyear:request.query.academicyear, degree:request.query.degree,
                     dept:request.query.dept, sem:request.query.sem, class:request.query.class},         function(err, result){
-        
+
         console.log("Callback: " + result + "\t N:" + JSON.parse(result).n);
-        
+
         if(err){
             response.json({ status:false, mesg: 'Data Not Removed. Refresh to try again.'});
-            
+
         }
         else{
            response.json({ status:true, mesg: result});
         }
-    
+
     });
-    
+
 });
 
 router.get('/fbformdetail', function(request, response, next) {
@@ -136,9 +136,17 @@ router.post('/fbdetailv1', function(request, response, next) {
             //       "theory":document.theory
             //     }}
 
+
             theory=find(document.sectionList,{'section':"Theory"});
-            practical=find(document.sectionList,{'section':"Practical",'batch':request.body.batch});
-            technician=find(document.sectionList,{'section':"Technician",'batch':request.body.batch});
+            // practical=find(document.sectionList,{'section':"Practical",'batch':request.body.batch});
+            // technician=find(document.sectionList,{'section':"Technician",'batch':request.body.batch});
+
+            practical=find(document.sectionList,(temp)=>{
+              return (temp.section=='Practical' && temp.batch.indexOf(request.body.batch)!=-1);
+            });
+            technician=find(document.sectionList,(temp)=>{
+              return (temp.section=='Technician' && temp.batch.indexOf(request.body.batch)!=-1);
+            });
             if(theory&&practical)
             {
               if(technician)
@@ -292,6 +300,24 @@ router.post('/addfbdetail',(request,response,next)=>{
     });
 });
 
+// To update fb details
+router.put('/updatefbdetail',(request,response,next)=>{
+    const obTemp={
+      academicyear:request.body.academicyear,
+      dept:request.body.dept,
+      degree:request.body.degree,
+      class:request.body.class,
+      sem:request.body.sem
+    };
+    fbdetail.update(obTemp,request.body,(error,result)=>{
+      if(error)
+        response.json({status:false,mesg:error.errmsg});
+      else {
+        response.json({status: true, mesg: result});
+      }
+    });
+});
+
 
 /*
 *  Function to add the user (Student/Faculty)
@@ -379,5 +405,4 @@ router.get('/getCompletedStatus', (request, response, next)=>{
     }
   });
 });
-
 module.exports = router;

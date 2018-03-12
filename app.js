@@ -4,7 +4,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 const mongoose=require('mongoose');
 const corst=require('cors');
 var jwt =require('jsonwebtoken');
@@ -17,10 +16,10 @@ var config = require('./config');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
+//
 //connect db
 mongoose.connect(config.database,{useMongoClient:true});
-
+//
 //check db connection
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -35,7 +34,11 @@ app.use(corst());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+
+//
+//
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/', index);
 /*
 app.use((request,response,next)=>{
@@ -66,6 +69,9 @@ app.use('/details', details);
 app.use('/upload',upload);
 //if any route not found
 //
+// app.get('/test1',(request,response)=>{
+//   response.sendFile(path.join(__dirname,'dist/index.html'));
+// });
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
