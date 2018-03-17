@@ -70,6 +70,30 @@ router.get('/getfacultylist', (request, response,next)=>{
     }
   });
 
+  /*
+  * function to delete Faculty List from database
+  * @input: dept
+  */
+  router.delete('/deletefacultylist', function(request, response, next){
+
+      // console.log(request.query);
+
+      facultydetailModel.remove({
+                      dept:request.query.dept},         function(err, result){
+
+          console.log("Callback: " + result + "\t N:" + JSON.parse(result).n);
+
+          if(err){
+              response.json({ status:false, mesg: 'Data Not Removed. Refresh to try again.'});
+          }
+          else{
+             response.json({ status:true, mesg: result});
+          }
+      });
+
+  });
+
+
   /// aggregate code based on different collection format
   // facultydetailModel.aggregate([
   //   {
@@ -150,5 +174,32 @@ router.post('/updatesubjectlist', (request, response,next)=>{
     }
   )
 });
+
+/*
+* function to delete Subject List from database
+* @input: dept, degree, sem
+*/
+router.delete('/deletesubjectdetail', function(request, response, next){
+
+    // console.log(request.query);
+
+    subjectdetailModel.remove({degree:request.query.degree,
+                    dept:request.query.dept, sem:request.query.sem},         function(err, result){
+
+        console.log("Callback: " + result + "\t N:" + JSON.parse(result).n);
+
+        if(err){
+            response.json({ status:false, mesg: 'Data Not Removed. Refresh to try again.'});
+        }
+        else{
+           response.json({ status:true, mesg: result});
+        }
+    });
+
+});
+
+
+
+
 
 module.exports = router;

@@ -39,14 +39,14 @@ app.use(cookieParser());
 //
 //
 app.use(express.static(path.join(__dirname, 'dist')));
-app.use('/', index);
+app.use('/fbapi', index);
 /*
 app.use((request,response,next)=>{
   var credential=request.headers['credential'];
   if(credential){
     jwt.verify(credential,config.jwtsecret,(error,decoded)=>{
       if(error){
-        return response.json({success:false,mesg:'Credential Expired,Login Requierd'});
+        return response.json({success:false,mesg:'Credential Expired, Requierd'});
       }
       else {
         request.decoded=decoded;
@@ -63,10 +63,15 @@ app.use((request,response,next)=>{
 });
 */
 //make use of the routes
-app.use('/users', users);
-app.use('/fbresult', results);
-app.use('/details', details);
-app.use('/upload',upload);
+app.use('/fbapi/users', users);
+app.use('/fbapi/fbresult', results);
+app.use('/fbapi/details', details);
+app.use('/fbapi/upload',upload);
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist/index.html'));
+});
+
 //if any route not found
 //
 // app.get('/test1',(request,response)=>{

@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var mongoXlsx = require('mongo-xlsx');
 
 const mongoose = require('mongoose');
 const jwt= require('jsonwebtoken');
@@ -39,7 +40,77 @@ router.get('/overall', function(request, response, next) {
       ],(error,result)=>{
         if(error){
           response.json(error);}else{
-        response.json(result);}
+        response.json(result); }
+      });
+});
+
+
+router.get('/export2xslx', function(request, response, next) {
+
+ fbresult.aggregate([{
+   $match: {academicyear: request.query.academicyear,fdept:request.query.dept}
+    },
+    {$unwind: "$fbValueList"},
+    {$group:
+      {_id: {fname: "$fname",rating:"$fbValueList.rating"},
+        count: {"$sum": 1 },
+        total:{"$sum":"$fbValueList.score"}
+      }
+      },
+        {$group:
+           {_id: "$_id.fname",
+              rating_group: {$push: {rating: "$_id.rating",count: "$count"}},
+              totalScore:{$sum:"$total"},
+              totalCount:{$sum:"$count"}
+          },
+        }
+      ],(error,result)=>{
+        if(error){
+          response.json(error);}else{
+            console.log(result.length);
+            if (result.length != 0) {
+
+              result.map(x => {
+                    for (let grp of x.rating_group) {
+                            x[grp['rating']] = grp['count'];
+                    }
+                    let tempScore = x.totalScore;  //temporary storage made inorder to put total score and total count at last position
+                    let tempCount = x.totalCount;
+                    delete x.rating_group;   // deleting it as it is not necessary
+                    delete x.totalCount;
+                    delete x.totalScore;
+                    x.totalScore = tempScore;  //pushing totalScore to second last position
+                    x.totalCount = tempCount;  //pushing totalCount to last position
+                });
+                  /* Generate automatic model for processing (A static model should be used) */
+                  var model = mongoXlsx.buildDynamicModel(result);
+                  /* Generate Options */
+                  var options = {
+
+                    save: true,
+                    fileName: request.query.academicyear+"_"+request.query.dept+"_"+ new Date().getHours() + "_" + new Date().getMinutes() + "_" + new Date().getSeconds() +".xlsx",
+                    path : "./reports",
+                    defaultSheetName: request.query.academicyear+"_"+request.query.dept
+                  }
+
+                  /* Generate Excel */
+                  mongoXlsx.mongoData2Xlsx(result, model,options, function(err, res) {
+
+                    if (err) {
+                      response.json({status:false,mesg:err});
+                    }else{
+                      console.log('File saved at:', res.fullPath);
+                      console.log(res);
+                      response.json({status:true,mesg:res});
+                    }
+
+                  });
+
+            }else{
+              response.json({status:false,mesg:"No Data Available for this selections."});
+            }
+
+      }
       });
 });
 
