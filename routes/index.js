@@ -9,6 +9,40 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express Test' });
 });
 
+
+
+router.put('/changepassword',(request,response,next)=>{
+  userModel.findOne({userId:request.body.userId},(error,result)=>{
+        if(error){
+          response.status(400).json({success:false,mesg:'Error Processing Request'+error});
+        }
+        if(!result){
+          response.status(201).json({success:false,mesg:'user !exists'});
+        }else if(result){
+          result.comparePassword(request.body.oldpassword,(error,ismatch)=>{
+            if(ismatch&&!error)
+            {
+                result.password=request.body.newpassword;
+                userModel.update({userId:request.body.userId},result,(error,result)=>{
+                  if(error){
+                    response.status(201).json({
+                      success:false,mesg:"password !updated"+error
+                    });
+                  }
+                  else
+                    response.status(201).json({
+                      success:true,mesg:{'updated password':request.body.newpassword}
+                    });
+                });
+            }
+            else{
+              response.status(201).json({success:false,mesg:'Incorrect Login credential'});
+            }
+          });
+        }
+
+});
+});
 router.post('/login',(request,response,next)=>{
   console.log(request.body);
   userModel.findOne({userId:request.body.userId},(error,result)=>{

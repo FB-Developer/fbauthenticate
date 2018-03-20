@@ -362,7 +362,6 @@ router.post('/setcompleted', (request, response, next)=>{
 */
 router.post('/setcompletedfalse', (request, response, next)=>{
     userModel.find(request.body, (error, result)=>{
-    //  console.log(result, error);
       if(result.length != 0){
 
         userModel.update(request.body,{ $set: { "studentdetail.completed" : false }}, (error, result)=>{
@@ -403,6 +402,6 @@ router.get('/getCompletedStatus', (request, response, next)=>{
       }else{
               response.json({status:false,mesg:"!Found"});
     }
-  });
+    });
 });
 module.exports = router;

@@ -27,9 +27,11 @@ var userSchema= mongoose.Schema({
 userSchema.pre('save', function (next) {
     const users = this,
     SALT_FACTOR = 5;
+    console.log('----in save----',users);
     if (!users.isModified('password')){
        return next();
      }
+
     bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
       if (err)
         return next(err);
@@ -40,6 +42,33 @@ userSchema.pre('save', function (next) {
         next();
       });
     });
+});
+userSchema.pre('update', function (next) {
+  const users = this.getUpdate();
+
+
+  if (users.$set.password)
+    {
+    SALT_FACTOR = 5;
+    console.log('----in update----',users.$set.password);
+    // if (!users.isModified('password')){
+    //    return next();
+    //  }
+
+    bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+      if (err)
+        return next(err);
+      bcrypt.hash(users.$set.password, salt, (err, hash) => {
+        if (err)
+          return next(err);
+        users.password = hash;
+        next();
+      });
+  });
+}
+else {
+  next();
+}
 });
 userSchema.methods.comparePassword = function (candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
