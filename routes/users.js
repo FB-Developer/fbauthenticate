@@ -309,6 +309,9 @@ router.put('/updatefbdetail',(request,response,next)=>{
       class:request.body.class,
       sem:request.body.sem
     };
+    console.log('****',obTemp);
+
+
     fbdetail.update(obTemp,request.body,(error,result)=>{
       if(error)
         response.json({status:false,mesg:error.errmsg});
