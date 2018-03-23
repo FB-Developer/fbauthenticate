@@ -31,7 +31,7 @@ router.put('/changepassword',(request,response,next)=>{
                   }
                   else
                     response.status(201).json({
-                      success:true,mesg:{'updated password':request.body.newpassword}
+                      success:true,mesg:'Password Updated Successfully'
                     });
                 });
             }
