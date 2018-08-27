@@ -16,6 +16,7 @@
     "express": "^4.15.5",
     "express-fileupload": "^0.3.0",
     "jsonwebtoken": "^8.1.0",
+    "lodash": "^4.17.10",
     "lodash.find": "^4.6.0",
     "lokijs": "^1.5.1",
     "mongo-xlsx": "^1.0.12",

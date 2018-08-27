@@ -15,7 +15,8 @@ const fbSchema = new Schema({
                 subname:String,
                 facultyList:[{
                   fname:String,
-                  fdept:String
+                  fdept:String,
+                  fimage:String
                 }]
             }]
         }]

@@ -31,8 +31,13 @@ db.once('open', function() {
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(corst());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit:'100mb'}));
+
+
+
+
+
+app.use(bodyParser.urlencoded({ extended: true,limit:'100mb' }));
 app.use(cookieParser());
 
 

@@ -44,9 +44,7 @@ router.get('/overall', function(request, response, next) {
       });
 });
 
-
 router.get('/export2xslx', function(request, response, next) {
-
  fbresult.aggregate([{
    $match: {academicyear: request.query.academicyear,fdept:request.query.dept}
     },
@@ -237,5 +235,18 @@ fbresult.find(request.body,(error,result)=>
         });
       } }
   });
+});
+
+router.get('/downloadreport',(request,response)=>{
+  response.download('reports/'+request.query.filename,(error)=>{
+
+    if(error){
+      console.log('----',error);
+      response.json({status:false,mesg:error});
+    }
+    else{
+      console.log('----download done');
+    }
+  })
 });
 module.exports = router;

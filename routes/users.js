@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var find =require('lodash.find');
+var _ =require('lodash');
 const mongoose = require('mongoose');
 const jwt= require('jsonwebtoken');
 const config = require('../config');
@@ -135,25 +136,59 @@ router.post('/fbdetailv1', function(request, response, next) {
             //     mesg1={
             //       "theory":document.theory
             //     }}
-
-
-            theory=find(document.sectionList,{'section':"Theory"});
             // practical=find(document.sectionList,{'section':"Practical",'batch':request.body.batch});
             // technician=find(document.sectionList,{'section':"Technician",'batch':request.body.batch});
-
-            practical=find(document.sectionList,(temp)=>{
-              return (temp.section=='Practical' && temp.batch.indexOf(request.body.batch)!=-1);
+            theory=find(document.sectionList,{'section':"Theory"});
+            let batchList=_.split(request.body.batch,',');
+            let practical=new Array();
+            find(document.sectionList,(temp)=>{
+              _.forIn(batchList,(v1,v2)=>{
+                  let tt=(temp.section=='Practical'|| temp.section=='Theory+Practical')&& temp.batch.indexOf(v1)!=-1;
+                  if(tt){
+                    console.log(v1,temp.section);
+                    practical.push(temp);
+                  }
+              });
+              //
+              // return (temp.section=='Practical' && temp.batch.indexOf(request.body.batch)!=-1);
+            });
+            theoryElect=new Array();
+            find(document.sectionList,(temp)=>{
+              _.forIn(batchList,(v1,v2)=>{
+                  let tt=temp.section=='Theory(Elective)' && temp.batch.indexOf(v1)!=-1;
+                  if(tt){
+                    console.log(v1,temp.section);
+                    theoryElect.push(temp);
+                  }
+              });
             });
             technician=find(document.sectionList,(temp)=>{
-              return (temp.section=='Technician' && temp.batch.indexOf(request.body.batch)!=-1);
+              return (temp.section=='Technician' && temp.batch.indexOf(batchList[0])!=-1);
             });
-            if(theory&&practical)
+            if(theory)//&&practical)
             {
+              let response1=[theory];
+              if(practical)
+                practical.map(tt=>response1.push(tt));
+              if(theoryElect)
+                  theoryElect.map(tt=>response1.push(tt));
               if(technician)
-                mesg1={"sectionList":[theory,practical,technician]};
-              else {
-                mesg1={"sectionList":[theory,practical]};
-              }
+                  response1.push(technician);
+              // if(theoryElect){
+              //   if(technician)
+              //     mesg1={"sectionList":[theory,theoryElect,practical,technician]};
+              //     else {
+              //       mesg1={"sectionList":[theory,theoryElect,practical]};
+              //     }
+              //   }
+              //   else{
+              //       if(technician)
+              //         mesg1={"sectionList":[theory,practical,technician]};
+              //         else {
+              //           mesg1={"sectionList":[theory,practical]};
+              //         }
+              //   }
+              mesg1={"sectionList":response1};
               response.json({status:true, mesg: mesg1});
             }
             else {
