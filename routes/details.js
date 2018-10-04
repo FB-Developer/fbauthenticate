@@ -35,7 +35,7 @@ router.post('/updatefacultylist', (request, response,next)=>{
     facultydetailModel.update({dept: request.body.dept},
     { $addToSet: { facultylist: { $each: request.body.facultylist}} }, (error, result)=>{
 
-      if (result == 0)
+      if (result == 1)
         response.send(error)
       else if(result.nModified == 0)
           response.send({status:false,mesg:"Faculty Name may be Already Exist or Department/Semester Entry Not Found."});
@@ -174,6 +174,28 @@ router.post('/updatesubjectlist', (request, response,next)=>{
     }
   )
 });
+
+/*
+router.delete('/deletesubjectdetail', function(request, response, next){
+
+    // console.log(request.query);
+
+    subjectdetailModel.remove({degree:request.query.degree,
+                    dept:request.query.dept, sem:request.query.sem},         function(err, result){
+
+        console.log("Callback: " + result + "\t N:" + JSON.parse(result).n);
+
+        if(err){
+            response.json({ status:false, mesg: 'Data Not Removed. Refresh to try again.'});
+        }
+        else{
+           response.json({ status:true, mesg: result});
+        }
+    });
+
+});
+*/
+
 
 /*
 * function to delete Subject List from database

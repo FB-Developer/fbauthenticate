@@ -143,7 +143,7 @@ router.post('/fbdetailv1', function(request, response, next) {
             let practical=new Array();
             find(document.sectionList,(temp)=>{
               _.forIn(batchList,(v1,v2)=>{
-                  let tt=(temp.section=='Practical'|| temp.section=='Theory+Practical')&& temp.batch.indexOf(v1)!=-1;
+                  let tt=(temp.section=='Tutorial'||temp.section=='Practical'|| temp.section=='Theory+Practical')&& temp.batch.indexOf(v1)!=-1;
                   if(tt){
                     console.log(v1,temp.section);
                     practical.push(temp);
